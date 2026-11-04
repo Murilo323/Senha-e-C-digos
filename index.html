@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
+  <title>CryptoLab — Criptografia & Descriptografia</title>
+  <style>
+    :root {
+      --bg: #07111f; --panel: rgba(14, 29, 49, .88); --line: rgba(105, 220, 255, .2);
+      --cyan: #55e6ff; --green: #71f6bd; --text: #eaf7ff; --muted: #9ab0c4;
+      --danger: #ff8297; --shadow: 0 18px 60px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(0, 203, 255, .13), transparent 30%),
+        radial-gradient(circle at 90% 85%, rgba(0, 255, 170, .10), transparent 28%),
+        linear-gradient(145deg, #050b14, var(--bg) 55%, #091a2a);
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .16;
+      background-image: linear-gradient(rgba(85,230,255,.08) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(85,230,255,.08) 1px, transparent 1px);
+      background-size: 42px 42px; mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+    .wrap { width: min(1100px, calc(100% - 32px)); margin: 0 auto; position: relative; }
+    header { padding: 38px 0 24px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--cyan); font-weight: 800; letter-spacing: .13em; font-size: .82rem; }
+    .brand-mark { width: 38px; height: 38px; display:grid; place-items:center; border:1px solid var(--cyan); border-radius:12px; box-shadow:0 0 22px #55e6ff33; }
+    h1 { margin: 22px 0 10px; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.03; letter-spacing: -.045em; }
+    h1 span { color: var(--cyan); }
+    .lead { color: var(--muted); max-width: 690px; line-height: 1.7; margin: 0; }
+    .layout { display:grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 18px; padding: 18px 0 46px; }
+    .panel { background: var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:var(--shadow); backdrop-filter: blur(14px); }
+    .panel h2 { margin:0 0 7px; font-size:1.1rem; }
+    .sub { margin:0 0 20px; color:var(--muted); font-size:.9rem; line-height:1.5; }
+    label { display:block; margin:17px 0 8px; color:#c7d9e8; font-size:.86rem; font-weight:650; }
+    textarea, input {
+      width:100%; color:var(--text); background:#06101c; border:1px solid #24435c;
+      border-radius:12px; padding:13px 14px; outline:none; font:inherit; transition:.2s;
+    }
+    textarea { min-height:116px; resize:vertical; }
+    textarea:focus, input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px #55e6ff18; }
+    .hint { color:var(--muted); font-size:.78rem; margin-top:7px; line-height:1.5; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:17px; }
+    button {
+      border:0; border-radius:11px; padding:12px 17px; cursor:pointer; font-weight:750;
+      transition:transform .15s, filter .15s; font:inherit;
+    }
+    button:hover { transform:translateY(-1px); filter:brightness(1.08); }
+    button:focus-visible { outline:2px solid white; outline-offset:3px; }
+    .primary { color:#04121a; background:linear-gradient(110deg,var(--cyan),var(--green)); }
+    .secondary { color:var(--text); background:#142a40; border:1px solid #2b4b64; }
+    .output { margin-top:18px; padding:15px; background:#050d17; border:1px solid #203b52; border-radius:13px; min-height:74px; overflow-wrap:anywhere; }
+    .output-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:9px; }
+    .output-head strong { font-size:.85rem; color:var(--green); }
+    .output code { white-space:pre-wrap; word-break:break-all; color:#c5f7ff; font-size:.82rem; line-height:1.6; }
+    .small-btn { padding:6px 9px; font-size:.75rem; color:var(--cyan); background:#11283b; border:1px solid #2a526a; }
+    .status { min-height:22px; margin-top:10px; font-size:.82rem; color:var(--green); }
+    .status.error { color:var(--danger); }
+    .steps { display:grid; gap:12px; margin-top:19px; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start; }
+    .num { width:32px; height:32px; display:grid; place-items:center; border-radius:10px; color:var(--cyan); background:#123149; border:1px solid #286078; font-weight:800; }
+    .step strong { display:block; margin:1px 0 4px; font-size:.9rem; }
+    .step p { margin:0; color:var(--muted); font-size:.82rem; line-height:1.55; }
+    .tag { display:inline-block; padding:5px 8px; margin:0 4px 5px 0; border-radius:7px; background:#102b3b; color:var(--cyan); font-size:.72rem; font-weight:750; }
+    .notice { border-left:3px solid var(--green); padding:11px 13px; background:#0d2928; color:#b9e9d9; border-radius:0 10px 10px 0; font-size:.8rem; line-height:1.55; margin-top:18px; }
+    footer { padding:0 0 28px; color:#71899e; text-align:center; font-size:.76rem; }
+    @media (max-width:800px) { .layout { grid-template-columns:1fr; } .panel { padding:20px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><div class="brand-mark">⌘</div> CRYPTOLAB <span class="tag">AES-GCM</span></div>
+      <h1>Proteja seus dados.<br><span>Entenda o processo.</span></h1>
+      <p class="lead">Digite uma senha, código ou mensagem com letras, números e símbolos. Veja como a criptografia transforma o texto e como a descriptografia recupera o conteúdo original.</p>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>Laboratório de criptografia</h2>
+        <p class="sub">O processamento acontece no seu navegador. O texto não é enviado para um servidor.</p>
+
+        <label for="plain">1. Texto original</label>
+        <textarea id="plain" placeholder="Ex.: MinhaSenha@2026!"></textarea>
+        <div class="hint">Aceita letras, números, espaços e símbolos. Para este exemplo, use um texto de sua autoria — não uma senha real.</div>
+
+        <div class="actions">
+          <button class="primary" id="encrypt">Criptografar texto</button>
+          <button class="secondary" id="clear">Limpar</button>
+        </div>
+
+        <div class="output">
+          <div class="output-head"><strong>2. Texto criptografado (Base64)</strong><button class="small-btn" id="copy" disabled>Copiar</button></div>
+          <code id="cipher">O resultado aparecerá aqui...</code>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="decrypt" disabled>Descriptografar</button>
+        </div>
+        <div class="output">
+          <div class="output-head"><strong>3. Texto recuperado</strong></div>
+          <code id="recovered">Aguardando descriptografia...</code>
+        </div>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+      </section>
+
+      <aside class="panel">
+        <h2>O que acontece por trás?</h2>
+        <p class="sub">Este projeto usa AES-GCM, um algoritmo moderno de criptografia simétrica disponível na Web Crypto API.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><strong>Preparação</strong><p>O navegador transforma o texto em bytes usando UTF-8, uma forma de representar caracteres digitalmente.</p></div></div>
+          <div class="step"><div class="num">02</div><div><strong>Chave e nonce</strong><p>É criada uma chave AES de 256 bits e um nonce aleatório de 12 bytes. A mesma chave será usada para reverter o processo.</p></div></div>
+          <div class="step"><div class="num">03</div><div><strong>Criptografia</strong><p>O AES-GCM combina os dados com a chave e o nonce. O resultado fica ilegível sem a chave correta e inclui uma verificação de integridade.</p></div></div>
+          <div class="step"><div class="num">04</div><div><strong>Codificação Base64</strong><p>Os bytes criptografados são representados como caracteres para facilitar a exibição e a cópia. Base64 não é criptografia.</p></div></div>
+          <div class="step"><div class="num">05</div><div><strong>Descriptografia</strong><p>O navegador usa a chave guardada temporariamente e o nonce para validar e recuperar os bytes originais. Depois, converte-os de volta para texto.</p></div></div>
+        </div>
+        <div class="notice"><strong>Importante:</strong> esta é uma demonstração educativa. A chave fica apenas na memória desta página e é perdida ao recarregar ou fechar a aba. Não use o site para proteger senhas reais ou informações confidenciais.</div>
+      </aside>
+    </main>
+    <footer>CRYPTOLAB · Demonstração educativa de criptografia no navegador</footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let currentKey = null;
+    let currentNonce = null;
+    let encryptedBytes = null;
+
+    const toBase64 = (bytes) => {
+      let binary = "";
+      bytes.forEach(byte => binary += String.fromCharCode(byte));
+      return btoa(binary);
+    };
+
+    const fromBase64 = (value) => {
+      const binary = atob(value);
+      return Uint8Array.from(binary, char => char.charCodeAt(0));
+    };
+
+    function setStatus(message, isError = false) {
+      $("status").textContent = message;
+      $("status").classList.toggle("error", isError);
+    }
+
+    $("encrypt").addEventListener("click", async () => {
+      const text = $("plain").value;
+      if (!text) return setStatus("Digite um texto antes de criptografar.", true);
+      if (!window.crypto?.subtle) return setStatus("A criptografia segura não está disponível. Abra o site em HTTPS ou localhost.", true);
+
+      try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        currentKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+        currentNonce = crypto.getRandomValues(new Uint8Array(12));
+        encryptedBytes = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: currentNonce }, currentKey, data));
+
+        // O nonce é anexado ao resultado para que a demonstração possa ser reproduzida.
+        const packageBytes = new Uint8Array(currentNonce.length + encryptedBytes.length);
+        packageBytes.set(currentNonce);
+        packageBytes.set(encryptedBytes, currentNonce.length);
+
+        $("cipher").textContent = toBase64(packageBytes);
+        $("recovered").textContent = "Clique em “Descriptografar” para recuperar o texto.";
+        $("copy").disabled = false;
+        $("decrypt").disabled = false;
+        setStatus("Criptografia concluída. A chave permanece somente nesta sessão.");
+      } catch (error) {
+        setStatus("Não foi possível criptografar o texto neste navegador.", true);
+      }
+    });
+
+    $("decrypt").addEventListener("click", async () => {
+      if (!currentKey || !currentNonce || !encryptedBytes) return setStatus("Criptografe um texto primeiro.", true);
+      try {
+        const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: currentNonce }, currentKey, encryptedBytes);
+        $("recovered").textContent = new TextDecoder().decode(decrypted);
+        setStatus("Descriptografia concluída: o texto original foi recuperado.");
+      } catch (error) {
+        $("recovered").textContent = "Não foi possível recuperar o texto.";
+        setStatus("Falha na validação. Os dados podem ter sido alterados ou a chave não corresponde.", true);
+      }
+    });
+
+    $("copy").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("cipher").textContent);
+        setStatus("Texto criptografado copiado.");
+      } catch (error) {
+        setStatus("Não foi possível copiar automaticamente. Selecione e copie o resultado.", true);
+      }
+    });
+
+    $("clear").addEventListener("click", () => {
+      $("plain").value = "";
+      $("cipher").textContent = "O resultado aparecerá aqui...";
+      $("recovered").textContent = "Aguardando descriptografia...";
+      $("copy").disabled = true;
+      $("decrypt").disabled = true;
+      currentKey = currentNonce = encryptedBytes = null;
+      setStatus("Campos limpos. A chave temporária foi descartada.");
+    });
+  </script>
+</body>
+</html>
